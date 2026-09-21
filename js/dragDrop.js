@@ -1,5 +1,7 @@
 const DRAG_THRESHOLD = 5;
 
+let pendingClickTimeout = null;
+
 export function attachDragHandlers(container, { store, onClick }) {
   container.addEventListener('pointerdown', (event) => {
     const nota = event.target.closest('.nota');
@@ -32,11 +34,14 @@ export function attachDragHandlers(container, { store, onClick }) {
       container.removeEventListener('pointerup', onUp);
 
       if (!moved) {
-        onClick(nota.dataset.id);
+        clearTimeout(pendingClickTimeout);
+        pendingClickTimeout = setTimeout(() => onClick(nota.dataset.id), 300);
         return;
       }
 
+      nota.style.visibility = 'hidden';
       const destino = document.elementFromPoint(upEvent.clientX, upEvent.clientY)?.closest('.dia-columna') || columnaOrigen;
+      nota.style.visibility = '';
       const destRect = destino.getBoundingClientRect();
       const nuevoX = Math.max(0, upEvent.clientX - destRect.left - nota.offsetWidth / 2);
       const nuevoY = Math.max(0, upEvent.clientY - destRect.top - nota.offsetHeight / 2);
@@ -55,6 +60,8 @@ export function attachDragHandlers(container, { store, onClick }) {
   container.addEventListener('dblclick', (event) => {
     const nota = event.target.closest('.nota');
     if (!nota) return;
+    clearTimeout(pendingClickTimeout);
+    pendingClickTimeout = null;
     const actual = store.getAllNotes().find((n) => n.id === nota.dataset.id);
     if (actual) store.updateNote(actual.id, { fijada: !actual.fijada });
   });

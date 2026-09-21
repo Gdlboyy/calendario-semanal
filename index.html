@@ -15,6 +15,29 @@
   </header>
 
   <main id="semana" class="semana"></main>
+
+  <div id="modal-nota" class="modal">
+    <div class="modal-caja">
+      <label class="modal-label">Título
+        <input id="modal-titulo" type="text" class="modal-input">
+      </label>
+      <label class="modal-label">Descripción
+        <textarea id="modal-descripcion" class="modal-textarea" rows="4"></textarea>
+      </label>
+      <label class="modal-label modal-check">
+        <input id="modal-completada" type="checkbox">
+        Completada
+      </label>
+      <div class="modal-botones">
+        <button id="modal-eliminar" type="button" class="modal-boton modal-eliminar">Eliminar</button>
+        <button id="modal-cerrar" type="button" class="modal-boton">Cancelar</button>
+        <button id="modal-guardar" type="button" class="modal-boton modal-guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

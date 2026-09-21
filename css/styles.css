@@ -1,0 +1,155 @@
+:root {
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #05060a;
+  color: #e5e7eb;
+}
+
+.barra-superior {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #0b0d12;
+}
+
+.nav-boton {
+  background: #1a1d26;
+  color: #e5e7eb;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.nav-hoy { margin-left: auto; background: #374151; }
+
+.rango-semana {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .02em;
+}
+
+.semana {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.dia-columna {
+  position: relative;
+  flex: 1;
+  min-width: 160px;
+  min-height: 420px;
+  background: #0b0d12;
+  border-radius: 16px;
+  padding-top: 34px;
+}
+
+.dia-etiqueta {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  opacity: .55;
+}
+
+.dia-etiqueta.dia-hoy { opacity: 1; color: #facc15; }
+
+.dia-agregar {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #1f2330;
+  color: #e5e7eb;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dia-vacio {
+  position: absolute;
+  top: 60px;
+  left: 14px;
+  right: 14px;
+  font-size: 12px;
+  opacity: .4;
+  text-align: center;
+}
+
+.nota {
+  position: absolute;
+  border-radius: 16px;
+  padding: 9px 10px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .45);
+  cursor: grab;
+  user-select: none;
+}
+
+.tamano-chico   { width: 90px;  height: 70px;  }
+.tamano-mediano { width: 115px; height: 95px;  }
+.tamano-grande  { width: 140px; height: 120px; }
+
+.nota-tarea      { background: linear-gradient(160deg, #7c3aed, #a78bfa); }
+.nota-nota       { background: linear-gradient(160deg, #0891b2, #67e8f9); color: #04252b; }
+.nota-pendiente  { background: linear-gradient(160deg, #db2777, #f9a8d4); color: #3b0a24; }
+.nota-actividad  { background: linear-gradient(160deg, #22c55e, #bbf7d0); color: #052e14; }
+
+.nota.activa.nota-tarea     { box-shadow: 0 0 0 2px rgba(167,139,250,.5), 0 0 26px 6px rgba(124,58,237,.65), 0 6px 16px rgba(0,0,0,.45); }
+.nota.activa.nota-nota      { box-shadow: 0 0 0 2px rgba(103,232,249,.5), 0 0 26px 6px rgba(8,145,178,.65), 0 6px 16px rgba(0,0,0,.45); }
+.nota.activa.nota-pendiente { box-shadow: 0 0 0 2px rgba(249,168,212,.5), 0 0 26px 6px rgba(219,39,119,.65), 0 6px 16px rgba(0,0,0,.45); }
+.nota.activa.nota-actividad { box-shadow: 0 0 0 2px rgba(187,247,208,.5), 0 0 26px 6px rgba(34,197,94,.65), 0 6px 16px rgba(0,0,0,.45); }
+
+.nota.completada {
+  filter: brightness(.45) saturate(.7);
+}
+
+.nota-check {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #22c55e;
+  text-shadow: 0 0 14px rgba(34,197,94,.9), 0 0 4px #000;
+  pointer-events: none;
+}
+
+.nota.fijada::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  border: 3px solid #facc15;
+  box-shadow: 0 0 16px 2px rgba(250,204,21,.7);
+  pointer-events: none;
+}
+
+.pin-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+}
+
+.nota-titulo {
+  font-weight: 600;
+}

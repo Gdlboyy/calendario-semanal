@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario Semanal</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="barra-superior">
+    <button id="semana-anterior" class="nav-boton" type="button">◀</button>
+    <span id="rango-semana" class="rango-semana"></span>
+    <button id="semana-siguiente" class="nav-boton" type="button">▶</button>
+    <button id="semana-hoy" class="nav-boton nav-hoy" type="button">Hoy</button>
+  </header>
+
+  <main id="semana" class="semana">
+    <div class="dia-columna" data-dia="MUESTRA">
+      <span class="dia-etiqueta dia-hoy">LUN 21</span>
+      <button class="dia-agregar" type="button">+</button>
+
+      <div class="nota nota-tarea tamano-mediano activa" style="left:14px;top:34px;">
+        <div class="nota-titulo">Llamar proveedor</div>
+      </div>
+
+      <div class="nota nota-nota tamano-grande fijada" style="left:44px;top:104px;">
+        <div class="nota-titulo">Reunión con equipo 10am</div>
+        <span class="pin-badge">⭐</span>
+      </div>
+
+      <div class="nota nota-actividad tamano-chico completada" style="left:20px;top:220px;">
+        <div class="nota-titulo">Pagar renta</div>
+        <span class="nota-check">✔</span>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

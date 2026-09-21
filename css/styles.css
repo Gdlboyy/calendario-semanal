@@ -240,3 +240,18 @@ body {
   padding: 4px 8px;
   cursor: pointer;
 }
+
+@media (max-width: 640px) {
+  .semana {
+    overflow-x: hidden;
+  }
+
+  .dia-columna {
+    display: none;
+    min-width: 100%;
+  }
+
+  .dia-columna.visible-movil {
+    display: block;
+  }
+}

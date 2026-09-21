@@ -7,6 +7,7 @@ import { attachDragHandlers } from './dragDrop.js';
 
 const store = noteStore;
 let currentWeekStart = getWeekStart(new Date());
+let mobileDayIndex = 0;
 
 const semanaEl = document.getElementById('semana');
 const rangoEl = document.getElementById('rango-semana');
@@ -15,6 +16,11 @@ function render() {
   const weekDates = getWeekDates(currentWeekStart);
   rangoEl.textContent = formatWeekRange(weekDates);
   renderWeek({ container: semanaEl, weekDates, store });
+
+  const columnas = semanaEl.querySelectorAll('.dia-columna');
+  columnas.forEach((columna, index) => {
+    columna.classList.toggle('visible-movil', index === mobileDayIndex);
+  });
 }
 
 function seedIfEmpty() {
@@ -69,6 +75,23 @@ document.getElementById('semana-siguiente').addEventListener('click', () => {
 });
 document.getElementById('semana-hoy').addEventListener('click', () => {
   currentWeekStart = getWeekStart(new Date());
+  render();
+});
+
+let swipeStartX = null;
+
+semanaEl.addEventListener('touchstart', (event) => {
+  swipeStartX = event.touches[0].clientX;
+});
+
+semanaEl.addEventListener('touchend', (event) => {
+  if (swipeStartX === null) return;
+  const deltaX = event.changedTouches[0].clientX - swipeStartX;
+  swipeStartX = null;
+  if (Math.abs(deltaX) < 50) return;
+
+  if (deltaX < 0 && mobileDayIndex < 6) mobileDayIndex += 1;
+  if (deltaX > 0 && mobileDayIndex > 0) mobileDayIndex -= 1;
   render();
 });
 

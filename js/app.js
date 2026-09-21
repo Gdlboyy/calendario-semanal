@@ -3,6 +3,7 @@ import * as noteStore from './noteStore.js';
 import { renderWeek } from './render.js';
 import { initModal, openModal, attachModalHandlers } from './modal.js';
 import { showUndoToast } from './toast.js';
+import { attachDragHandlers } from './dragDrop.js';
 
 const store = noteStore;
 let currentWeekStart = getWeekStart(new Date());
@@ -37,6 +38,13 @@ function handleDelete(id) {
 
 initModal({ onSave: handleSave, onDelete: handleDelete });
 attachModalHandlers();
+
+function handleNotaClick(id) {
+  const nota = store.getAllNotes().find((n) => n.id === id);
+  if (nota) openModal(nota);
+}
+
+attachDragHandlers(semanaEl, { store, onClick: handleNotaClick });
 
 semanaEl.addEventListener('click', (event) => {
   const boton = event.target.closest('.dia-agregar');

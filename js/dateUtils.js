@@ -44,6 +44,8 @@ export function formatWeekRange(weekDates) {
   const first = weekDates[0].split('-').map(Number);
   const last = weekDates[6].split('-').map(Number);
   const month = MES_LABELS[last[1] - 1];
+  if (first[0] !== last[0]) return `${first[2]} ${MES_LABELS[first[1] - 1]} ${first[0]} – ${last[2]} ${month} ${last[0]}`;
+  if (first[1] !== last[1]) return `${first[2]} ${MES_LABELS[first[1] - 1]} – ${last[2]} ${month} ${last[0]}`;
   return `${first[2]}–${last[2]} ${month} ${last[0]}`;
 }
 

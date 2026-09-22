@@ -31,6 +31,8 @@ assert.match(formatDayLabel('2026-06-15'), /^[A-ZÁÉÍÓÚ]{3} \d{1,2}$/);
 
 // formatWeekRange returns a human range string
 assert.match(formatWeekRange(week), /^\d{1,2}–\d{1,2} [a-z]{3} \d{4}$/);
+assert.equal(formatWeekRange(getWeekDates(new Date(2026, 8, 28))), '28 sep – 4 oct 2026');
+assert.equal(formatWeekRange(getWeekDates(new Date(2026, 11, 28))), '28 dic 2026 – 3 ene 2027');
 
 // isToday is true for today's own ISO date
 assert.equal(isToday(toISODate(new Date())), true);

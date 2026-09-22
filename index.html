@@ -2,42 +2,121 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendario Semanal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Tareas · Derechos en California</title>
+  <meta name="theme-color" content="#070a12">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <header class="barra-superior">
-    <button id="semana-anterior" class="nav-boton" type="button">◀</button>
-    <span id="rango-semana" class="rango-semana"></span>
-    <button id="semana-siguiente" class="nav-boton" type="button">▶</button>
-    <button id="semana-hoy" class="nav-boton nav-hoy" type="button">Hoy</button>
+  <header class="encabezado">
+    <div class="marca">
+      <img class="marca-logo" src="assets/logo-dc.png" alt="Logo Derechos en California" width="159" height="180">
+      <div class="marca-texto">
+        <span class="marca-sobretitulo">Tablero del equipo</span>
+        <h1 class="marca-titulo">Tareas <em>Derechos en California</em></h1>
+      </div>
+    </div>
+
+    <div class="barra-control">
+      <div class="nav-semana">
+        <button id="semana-anterior" class="nav-boton" type="button" aria-label="Semana anterior" title="Semana anterior (←)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span id="rango-semana" class="rango-semana"></span>
+        <button id="semana-siguiente" class="nav-boton" type="button" aria-label="Semana siguiente" title="Semana siguiente (→)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <button id="semana-hoy" class="nav-boton nav-hoy" type="button" title="Ir a hoy (T)">Hoy</button>
+      </div>
+
+      <div class="progreso" aria-live="polite">
+        <div class="progreso-texto"><strong id="progreso-hechas">0</strong> de <span id="progreso-total">0</span> completadas</div>
+        <div class="progreso-barra"><span id="progreso-relleno"></span></div>
+      </div>
+
+      <div class="leyenda" aria-label="Tipos de nota">
+        <span class="leyenda-item tipo-tarea">Tarea</span>
+        <span class="leyenda-item tipo-nota">Nota</span>
+        <span class="leyenda-item tipo-pendiente">Pendiente</span>
+        <span class="leyenda-item tipo-actividad">Actividad</span>
+      </div>
+    </div>
   </header>
-  <div id="estado-conexion" class="estado-conexion">Sin conexión, mostrando última versión guardada.</div>
+
+  <div id="estado-conexion" class="estado-conexion" role="status">Sin conexión, mostrando la última versión guardada.</div>
+
+  <nav id="tabs-movil" class="tabs-movil" aria-label="Días de la semana"></nav>
 
   <main id="semana" class="semana"></main>
 
-  <div id="modal-nota" class="modal">
-    <div class="modal-caja">
-      <label class="modal-label">Título
-        <input id="modal-titulo" type="text" class="modal-input">
-      </label>
-      <label class="modal-label">Descripción
-        <textarea id="modal-descripcion" class="modal-textarea" rows="4"></textarea>
-      </label>
-      <label class="modal-label modal-check">
-        <input id="modal-completada" type="checkbox">
-        Completada
-      </label>
-      <div class="modal-botones">
-        <button id="modal-eliminar" type="button" class="modal-boton modal-eliminar">Eliminar</button>
-        <button id="modal-cerrar" type="button" class="modal-boton">Cancelar</button>
-        <button id="modal-guardar" type="button" class="modal-boton modal-guardar">Guardar</button>
+  <p class="atajos">Doble clic en una nota para fijarla · <kbd>N</kbd> nueva nota hoy · <kbd>←</kbd> <kbd>→</kbd> cambiar semana · <kbd>T</kbd> hoy</p>
+
+  <div id="modal-nota" class="panel" aria-hidden="true">
+    <div class="panel-fondo" data-cerrar></div>
+    <aside class="panel-caja" role="dialog" aria-modal="true" aria-labelledby="panel-encabezado">
+      <div class="panel-cabecera">
+        <span id="panel-encabezado" class="panel-etiqueta">Nueva nota</span>
+        <button type="button" class="panel-x" data-cerrar aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
-    </div>
+
+      <input id="modal-titulo" type="text" class="panel-titulo" placeholder="¿Qué hay que hacer?" maxlength="120" autocomplete="off">
+
+      <div class="panel-grupo">
+        <span class="panel-label">Tipo</span>
+        <div class="chips" id="modal-tipo" role="radiogroup" aria-label="Tipo">
+          <button type="button" class="chip tipo-tarea" data-valor="tarea" role="radio">Tarea</button>
+          <button type="button" class="chip tipo-nota" data-valor="nota" role="radio">Nota</button>
+          <button type="button" class="chip tipo-pendiente" data-valor="pendiente" role="radio">Pendiente</button>
+          <button type="button" class="chip tipo-actividad" data-valor="actividad" role="radio">Actividad</button>
+        </div>
+      </div>
+
+      <div class="panel-fila">
+        <div class="panel-grupo">
+          <span class="panel-label">Tamaño</span>
+          <div class="segmentado" id="modal-tamano" role="radiogroup" aria-label="Tamaño">
+            <button type="button" data-valor="chico" role="radio">S</button>
+            <button type="button" data-valor="mediano" role="radio">M</button>
+            <button type="button" data-valor="grande" role="radio">L</button>
+          </div>
+        </div>
+        <label class="panel-grupo">
+          <span class="panel-label">Día</span>
+          <input id="modal-dia" type="date" class="panel-fecha">
+        </label>
+      </div>
+
+      <label class="panel-grupo panel-grupo-crece">
+        <span class="panel-label">Detalles</span>
+        <textarea id="modal-descripcion" class="panel-texto" rows="5" maxlength="2000" placeholder="Notas, pasos, contexto…"></textarea>
+      </label>
+
+      <div class="interruptores">
+        <button type="button" id="modal-fijada" class="interruptor interruptor-fijar" aria-pressed="false">
+          <span class="interruptor-icono">★</span>
+          <span>Fijar</span>
+        </button>
+        <button type="button" id="modal-completada" class="interruptor interruptor-hecho" aria-pressed="false">
+          <span class="interruptor-icono">✓</span>
+          <span>Completada</span>
+        </button>
+      </div>
+
+      <div class="panel-pie">
+        <button id="modal-eliminar" type="button" class="boton boton-peligro">Eliminar</button>
+        <span class="panel-pista"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+        <button id="modal-guardar" type="button" class="boton boton-primario">Guardar</button>
+      </div>
+    </aside>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script type="module" src="js/app.js"></script>
 </body>

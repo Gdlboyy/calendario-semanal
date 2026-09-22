@@ -1,5 +1,5 @@
 import { getWeekStart, getWeekDates, addWeeks, formatWeekRange } from './dateUtils.js';
-import * as noteStore from './noteStore.js';
+import * as noteStore from './firestoreStore.js';
 import { renderWeek } from './render.js';
 import { initModal, openModal, attachModalHandlers } from './modal.js';
 import { showUndoToast } from './toast.js';
@@ -23,23 +23,16 @@ function render() {
   });
 }
 
-function seedIfEmpty() {
-  if (store.getAllNotes().length > 0) return;
-  const [lunes, martes] = getWeekDates(currentWeekStart);
-  store.addNote({ dia: lunes, tipo: 'tarea', titulo: 'Llamar proveedor', tamano: 'mediano', posicionX: 14, posicionY: 34 });
-  store.addNote({ dia: lunes, tipo: 'nota', titulo: 'Revisar correo', tamano: 'mediano', posicionX: 44, posicionY: 104 });
-  store.addNote({ dia: martes, tipo: 'actividad', titulo: 'Reunión con equipo 10am', tamano: 'grande', posicionX: 20, posicionY: 36, fijada: true });
-}
-
 function handleSave(id, patch) {
   store.updateNote(id, patch);
 }
 
 function handleDelete(id) {
-  const eliminada = store.removeNote(id);
-  if (eliminada) {
-    showUndoToast('Nota eliminada.', () => store.restoreNote(eliminada));
-  }
+  store.removeNote(id).then((eliminada) => {
+    if (eliminada) {
+      showUndoToast('Nota eliminada.', () => store.restoreNote(eliminada));
+    }
+  });
 }
 
 initModal({ onSave: handleSave, onDelete: handleDelete });
@@ -55,14 +48,13 @@ attachDragHandlers(semanaEl, { store, onClick: handleNotaClick });
 semanaEl.addEventListener('click', (event) => {
   const boton = event.target.closest('.dia-agregar');
   if (!boton) return;
-  const nueva = store.addNote({
+  store.addNote({
     dia: boton.dataset.dia,
     tipo: 'tarea',
     titulo: 'Nueva nota',
     posicionX: 20,
     posicionY: 40,
-  });
-  openModal(nueva);
+  }).then((nueva) => openModal(nueva));
 });
 
 document.getElementById('semana-anterior').addEventListener('click', () => {
@@ -95,5 +87,4 @@ semanaEl.addEventListener('touchend', (event) => {
   render();
 });
 
-seedIfEmpty();
 store.subscribe(render);

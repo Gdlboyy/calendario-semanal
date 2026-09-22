@@ -31,6 +31,17 @@ body {
 
 .nav-hoy { margin-left: auto; background: #374151; }
 
+.estado-conexion {
+  display: none;
+  background: #7c2d12;
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  padding: 6px;
+}
+
+.estado-conexion.visible { display: block; }
+
 .rango-semana {
   font-weight: 700;
   font-size: 15px;

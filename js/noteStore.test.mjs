@@ -30,6 +30,22 @@ assert.equal(store.getAllNotes().length, 1);
 store.restoreNote(eliminada);
 assert.equal(store.getAllNotes().length, 2);
 
+// Papelera: la nota sale del tablero, se puede restaurar y se purga a los 30 días
+const DIA_MS = 24 * 60 * 60 * 1000;
+const aBorrar = store.addNote({ dia: '2026-06-17', tipo: 'tarea', titulo: 'A la papelera' });
+store.moverAPapelera(aBorrar.id, 1000);
+assert.equal(store.getNotesForDay('2026-06-17').length, 0);
+assert.equal(store.getPapelera().length, 1);
+store.restaurarDePapelera(aBorrar.id);
+assert.equal(store.getNotesForDay('2026-06-17').length, 1);
+assert.equal(store.getPapelera().length, 0);
+
+store.moverAPapelera(aBorrar.id, 1000);
+assert.equal(store.purgarPapelera(1000 + 29 * DIA_MS).length, 0);
+assert.equal(store.getPapelera().length, 1);
+assert.equal(store.purgarPapelera(1000 + 31 * DIA_MS).length, 1);
+assert.equal(store.getPapelera().length, 0);
+
 unsubscribe();
 store.resetStore();
 assert.equal(store.getAllNotes().length, 0);

@@ -3,7 +3,7 @@ const MARGEN = 8;
 
 let pendingClickTimeout = null;
 
-export function attachDragHandlers(container, { onClick, onMover, onToggleCompletar, onToggleFijar }) {
+export function attachDragHandlers(container, { onClick, onMover, onToggleCompletar, onToggleFijar, onPapelera }) {
   container.addEventListener('click', (event) => {
     const accion = event.target.closest('[data-accion="completar"]');
     if (!accion) return;
@@ -43,6 +43,8 @@ export function attachDragHandlers(container, { onClick, onMover, onToggleComple
 
     function destinoEn(x, y) {
       const bajoPuntero = document.elementFromPoint(x, y);
+      const papelera = bajoPuntero?.closest('#papelera');
+      if (papelera) return { papelera };
       const tab = bajoPuntero?.closest('.tab-dia');
       if (tab) return { dia: tab.dataset.dia, lienzo: null, tab };
       const columna = bajoPuntero?.closest('.dia-columna');
@@ -67,6 +69,7 @@ export function attachDragHandlers(container, { onClick, onMover, onToggleComple
       lienzoOrigen?.appendChild(fantasma);
 
       nota.classList.remove('entra', 'aterriza', 'recien-completada');
+      nota.style.transformOrigin = `${offsetX}px ${offsetY}px`;
       nota.style.width = `${rect.width}px`;
       nota.style.left = `${rect.left}px`;
       nota.style.top = `${rect.top}px`;
@@ -86,7 +89,8 @@ export function attachDragHandlers(container, { onClick, onMover, onToggleComple
       nota.style.left = `${moveEvent.clientX - offsetX}px`;
       nota.style.top = `${moveEvent.clientY - offsetY}px`;
       const destino = destinoEn(moveEvent.clientX, moveEvent.clientY);
-      resaltar(destino?.columna ?? destino?.tab ?? null);
+      resaltar(destino?.papelera ?? destino?.columna ?? destino?.tab ?? null);
+      nota.classList.toggle('sobre-papelera', Boolean(destino?.papelera));
     }
 
     function limpiar() {
@@ -100,7 +104,8 @@ export function attachDragHandlers(container, { onClick, onMover, onToggleComple
     }
 
     function aterrizarEn(lienzo, x, y, rebote) {
-      nota.classList.remove('volando');
+      nota.classList.remove('volando', 'sobre-papelera');
+      nota.style.transformOrigin = '';
       nota.style.width = '';
       nota.style.left = `${x}px`;
       nota.style.top = `${y}px`;
@@ -122,6 +127,12 @@ export function attachDragHandlers(container, { onClick, onMover, onToggleComple
         return;
       }
 
+      if (destino.papelera) {
+        tragar(destino.papelera);
+        onPapelera(id);
+        return;
+      }
+
       if (!destino.lienzo) {
         nota.remove();
         onMover(id, { dia: destino.dia, posicionX: 12, posicionY: 12 }, { apilar: true });
@@ -134,6 +145,18 @@ export function attachDragHandlers(container, { onClick, onMover, onToggleComple
       const y = Math.round(Math.max(0, upEvent.clientY - offsetY - r.top));
       aterrizarEn(destino.lienzo, x, y);
       onMover(id, { dia: destino.dia, posicionX: x, posicionY: y });
+    }
+
+    function tragar(papelera) {
+      const r = papelera.getBoundingClientRect();
+      nota.style.transition = 'left .38s cubic-bezier(.5,0,.75,0), top .38s cubic-bezier(.5,0,.75,0), transform .38s ease-in, opacity .38s ease-in';
+      nota.style.left = `${r.left + r.width / 2 - nota.offsetWidth / 2}px`;
+      nota.style.top = `${r.top + r.height / 2 - nota.offsetHeight / 2}px`;
+      nota.style.transform = 'scale(.06) rotate(-18deg)';
+      nota.style.opacity = '0';
+      papelera.classList.add('tragando');
+      setTimeout(() => nota.remove(), 400);
+      setTimeout(() => papelera.classList.remove('tragando'), 750);
     }
 
     function cancelarVuelo() {

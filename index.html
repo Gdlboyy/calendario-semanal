@@ -13,6 +13,16 @@
 </head>
 <body>
   <header class="encabezado">
+    <button id="papelera" class="papelera" type="button" aria-label="Abrir papelera" title="Papelera · arrastra una nota aquí para eliminarla">
+      <svg class="papelera-icono" viewBox="0 0 24 24" aria-hidden="true">
+        <g class="papelera-tapa"><path d="M3.5 6.5h17"/><path d="M9.5 6.5V4.5h5v2"/></g>
+        <path d="M5.5 6.5l1 13.5h11l1-13.5"/>
+        <path d="M10 10.5v6M14 10.5v6"/>
+      </svg>
+      <span class="papelera-texto">Suelta para eliminar</span>
+      <span id="papelera-conteo" class="papelera-conteo" hidden></span>
+    </button>
+
     <div class="marca">
       <img class="marca-logo" src="assets/logo-dc.png" alt="Logo Derechos en California" width="159" height="180">
       <div class="marca-texto">
@@ -53,7 +63,7 @@
 
   <main id="semana" class="semana"></main>
 
-  <p class="atajos">Doble clic en una nota para fijarla · <kbd>N</kbd> nueva nota hoy · <kbd>←</kbd> <kbd>→</kbd> cambiar semana · <kbd>T</kbd> hoy</p>
+  <p class="atajos">Doble clic en una nota para fijarla · Arrástrala al bote para eliminarla ·<kbd>N</kbd> nueva nota hoy · <kbd>←</kbd> <kbd>→</kbd> cambiar semana · <kbd>T</kbd> hoy</p>
 
   <div id="modal-nota" class="panel" aria-hidden="true">
     <div class="panel-fondo" data-cerrar></div>
@@ -109,9 +119,26 @@
       </div>
 
       <div class="panel-pie">
-        <button id="modal-eliminar" type="button" class="boton boton-peligro">Eliminar</button>
+        <button id="modal-eliminar" type="button" class="boton boton-peligro">A la papelera</button>
         <span class="panel-pista"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
         <button id="modal-guardar" type="button" class="boton boton-primario">Guardar</button>
+      </div>
+    </aside>
+  </div>
+
+  <div id="panel-papelera" class="panel panel-izquierda" aria-hidden="true">
+    <div class="panel-fondo" data-cerrar></div>
+    <aside class="panel-caja" role="dialog" aria-modal="true" aria-labelledby="papelera-titulo">
+      <div class="panel-cabecera">
+        <span id="papelera-titulo" class="panel-etiqueta">Papelera</span>
+        <button type="button" class="panel-x" data-cerrar aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <p class="papelera-aviso">Las notas se borran para siempre <strong>30 días</strong> después de llegar aquí. Antes de eso puedes restaurarlas a su día.</p>
+      <ul id="papelera-lista" class="papelera-lista"></ul>
+      <div class="panel-pie">
+        <button id="papelera-vaciar" type="button" class="boton boton-peligro">Vaciar papelera</button>
       </div>
     </aside>
   </div>

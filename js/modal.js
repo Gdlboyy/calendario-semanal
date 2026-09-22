@@ -47,11 +47,12 @@ export function initModal({ onGuardar, onEliminar }) {
     cerrarPanel();
   });
 
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && panelAbierto()) cerrarPanel();
+  });
+
   panel.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      cerrarPanel();
-    } else if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
       guardar();
     } else if (event.key === 'Enter' && event.target === campos.titulo) {

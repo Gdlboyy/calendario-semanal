@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
 import {
-  getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc,
+  getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, deleteField,
 } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
 import { firebaseConfig } from './firebaseConfig.js';
 
@@ -8,23 +8,39 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const notasRef = collection(db, 'notas');
 
+export const DIAS_PAPELERA = 30;
+const VIDA_PAPELERA_MS = DIAS_PAPELERA * 24 * 60 * 60 * 1000;
+
 let cache = [];
 const listeners = new Set();
 
+function activas() {
+  return cache.filter((n) => !n.eliminadaEn);
+}
+
 function notify() {
-  for (const listener of listeners) listener(cache.slice());
+  for (const listener of listeners) listener(activas());
 }
 
 export function subscribe(listener) {
   listeners.add(listener);
-  listener(cache.slice());
+  listener(activas());
   return () => listeners.delete(listener);
+}
+
+// Sin servidor propio, la limpieza de la papelera la hace cualquier navegador que abra el tablero.
+function purgarPapelera() {
+  const limite = Date.now() - VIDA_PAPELERA_MS;
+  cache
+    .filter((n) => n.eliminadaEn && n.eliminadaEn < limite)
+    .forEach((n) => deleteDoc(doc(db, 'notas', n.id)).catch((error) => console.warn('No se pudo purgar', n.id, error)));
 }
 
 onSnapshot(
   notasRef,
   (snapshot) => {
     cache = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    purgarPapelera();
     notify();
     document.getElementById('estado-conexion')?.classList.remove('visible');
   },
@@ -70,10 +86,22 @@ export async function restoreNote(nota) {
   return { id: ref.id, ...datos };
 }
 
+export async function moverAPapelera(id) {
+  await updateDoc(doc(db, 'notas', id), { eliminadaEn: Date.now() });
+}
+
+export async function restaurarDePapelera(id) {
+  await updateDoc(doc(db, 'notas', id), { eliminadaEn: deleteField() });
+}
+
+export function getPapelera() {
+  return cache.filter((n) => n.eliminadaEn).sort((a, b) => b.eliminadaEn - a.eliminadaEn);
+}
+
 export function getNotesForDay(dia) {
-  return cache.filter((n) => n.dia === dia);
+  return activas().filter((n) => n.dia === dia);
 }
 
 export function getAllNotes() {
-  return cache.slice();
+  return activas();
 }

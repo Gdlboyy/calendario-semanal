@@ -59,12 +59,43 @@ export function restoreNote(nota) {
   return nota;
 }
 
+export const DIAS_PAPELERA = 30;
+const VIDA_PAPELERA_MS = DIAS_PAPELERA * 24 * 60 * 60 * 1000;
+
+function activas() {
+  return notes.filter((n) => !n.eliminadaEn);
+}
+
+export function moverAPapelera(id, ahora = Date.now()) {
+  return updateNote(id, { eliminadaEn: ahora });
+}
+
+export function restaurarDePapelera(id) {
+  const nota = notes.find((n) => n.id === id);
+  if (!nota) return null;
+  delete nota.eliminadaEn;
+  notify();
+  return nota;
+}
+
+export function getPapelera() {
+  return notes.filter((n) => n.eliminadaEn).sort((a, b) => b.eliminadaEn - a.eliminadaEn);
+}
+
+export function purgarPapelera(ahora = Date.now()) {
+  const vencidas = notes.filter((n) => n.eliminadaEn && ahora - n.eliminadaEn > VIDA_PAPELERA_MS);
+  if (vencidas.length === 0) return [];
+  notes = notes.filter((n) => !vencidas.includes(n));
+  notify();
+  return vencidas;
+}
+
 export function getNotesForDay(dia) {
-  return notes.filter((n) => n.dia === dia);
+  return activas().filter((n) => n.dia === dia);
 }
 
 export function getAllNotes() {
-  return notes.slice();
+  return activas();
 }
 
 export function resetStore() {

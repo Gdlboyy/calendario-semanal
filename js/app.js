@@ -1,9 +1,10 @@
 import { getWeekStart, getWeekDates, addWeeks, formatWeekRange, toISODate } from './dateUtils.js';
 import * as store from './firestoreStore.js';
 import { renderWeek, marcarAterrizaje, normalizarNota, altoEstimado, partesFecha } from './render.js';
-import { initModal, abrirPanel, panelAbierto } from './modal.js';
+import { initModal, abrirPanel } from './modal.js';
 import { showUndoToast, showToast } from './toast.js';
 import { attachDragHandlers } from './dragDrop.js';
+import { initPapelera, renderPapelera } from './papelera.js';
 
 const semanaEl = document.getElementById('semana');
 const rangoEl = document.getElementById('rango-semana');
@@ -43,6 +44,7 @@ function render() {
 
   renderTabs(weekDates);
   renderProgreso(weekDates);
+  renderPapelera(store.getPapelera());
 }
 
 function renderTabs(weekDates) {
@@ -113,12 +115,27 @@ function onGuardar(id, datos, { cambioDeDia }) {
   if (cambioDeDia && fueraDeSemana(datos.dia)) showToast(`Nota movida al ${describirDia(datos.dia)}`);
 }
 
-function onEliminar(id) {
-  store.removeNote(id)
-    .then((eliminada) => {
-      if (eliminada) showUndoToast('Nota eliminada', () => store.restoreNote(eliminada).catch(avisarError));
-    })
-    .catch(avisarError);
+function enviarAPapelera(id) {
+  store.moverAPapelera(id).catch(avisarError);
+  showUndoToast('Nota enviada a la papelera', () => store.restaurarDePapelera(id).catch(avisarError));
+}
+
+function restaurar(id) {
+  const nota = store.getPapelera().find((n) => n.id === id);
+  store.restaurarDePapelera(id).catch(avisarError);
+  if (nota?.dia && fueraDeSemana(nota.dia)) showToast(`Nota restaurada al ${describirDia(nota.dia)}`);
+  else showToast('Nota restaurada');
+}
+
+function borrarParaSiempre(id) {
+  store.removeNote(id).catch(avisarError);
+  showToast('Nota borrada para siempre');
+}
+
+function vaciarPapelera() {
+  const ids = store.getPapelera().map((n) => n.id);
+  Promise.all(ids.map((id) => store.removeNote(id))).catch(avisarError);
+  if (ids.length) showToast(`Papelera vaciada (${ids.length})`);
 }
 
 function onMover(id, patch, { apilar = false } = {}) {
@@ -136,7 +153,8 @@ function buscarNota(id) {
   return store.getAllNotes().find((n) => n.id === id);
 }
 
-initModal({ onGuardar, onEliminar });
+initModal({ onGuardar, onEliminar: enviarAPapelera });
+initPapelera({ onRestaurar: restaurar, onBorrar: borrarParaSiempre, onVaciar: vaciarPapelera, dias: store.DIAS_PAPELERA });
 
 attachDragHandlers(semanaEl, {
   onClick: (id) => {
@@ -144,6 +162,7 @@ attachDragHandlers(semanaEl, {
     if (nota) abrirPanel(nota);
   },
   onMover,
+  onPapelera: enviarAPapelera,
   onToggleCompletar: (id) => {
     const nota = buscarNota(id);
     if (nota) store.updateNote(id, { completada: !nota.completada }).catch(avisarError);
@@ -193,7 +212,7 @@ document.getElementById('semana-siguiente').addEventListener('click', () => camb
 document.getElementById('semana-hoy').addEventListener('click', irAHoy);
 
 document.addEventListener('keydown', (event) => {
-  if (panelAbierto() || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (document.querySelector('.panel.abierto') || event.ctrlKey || event.metaKey || event.altKey) return;
   if (event.target.closest('input, textarea, select, [contenteditable]')) return;
   const tecla = event.key.toLowerCase();
   if (event.key === 'ArrowLeft') cambiarSemana(-1);
